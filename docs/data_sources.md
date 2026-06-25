@@ -53,3 +53,14 @@ This file documents the planned source inventory for the Postpartum Medicaid Acc
 - Purpose: Optional composite vulnerability context
 - Note: Use only if it adds value and does not duplicate ACS indicators
 - Status: Not added yet
+
+## G. Hospital-Based Obstetric Care Status
+
+- Source: University of Minnesota Rural Health Research Center / Rural Maternal Health Data Support and Analysis Program
+- Dataset: 2010-2024 County-Level Hospital-Based Obstetric Care Status
+- Source page: `https://rhrc.umn.edu/publication/2010-2024-county-level-hospital-based-obstetric-care-status/`
+- Source file: `https://rhrc.umn.edu/wp-content/uploads/2026/05/county_OBstat_2010_2024.xlsx`
+- Purpose: Identify whether counties have hospital-based obstetric care available.
+- Use in project: Postpartum-specific clinical access context and potential index component.
+- Limitation: This identifies hospital-based obstetric care status, not all prenatal care, postpartum care, outpatient OB/GYN access, birth centers, doulas, midwives, community health centers, or Medicaid enrollment support.
+- Status: Added by `scripts/07_add_obstetric_care_status.py`

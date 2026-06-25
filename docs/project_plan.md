@@ -33,6 +33,33 @@ The dashboard is intended as a policy-facing screening tool for identifying plac
 - Build the Power BI report.
 - Write portfolio summary.
 
+## Planned Index Design
+
+Medicaid office availability is an administrative and enrollment support access measure. Hospital-based obstetric care status is a clinical maternity access measure. Female population ages 15-44 is a reproductive-age population context proxy. Disability rate is included as an access-support context measure, not as a direct measure of postpartum disability or pregnancy-related disability.
+
+Population age 65+ should not be used in the score or presented as a planned dashboard context measure because the project is focused on postpartum Medicaid access barriers.
+
+Planned score components:
+
+- No Medicaid office in county = 2 points
+- No hospital-based obstetric care = 2 points
+- Top quartile poverty rate = 1 point
+- Top quartile no-vehicle household rate = 1 point
+- Top quartile no-internet subscription rate = 1 point
+- Top quartile limited English rate = 1 point
+- Top quartile disability rate = 1 point
+- Top quartile female population ages 15-44 rate = 1 point
+- Nonmetro county = 1 point
+
+Planned score range: 0-11 points
+
+Planned concern levels:
+
+- 0-2 = Lower concern
+- 3-5 = Moderate concern
+- 6-8 = High concern
+- 9-11 = Highest concern
+
 ## Planned Power BI Outputs
 
 - National Postpartum Medicaid Access Overview

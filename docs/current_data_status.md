@@ -12,3 +12,9 @@ This table summarizes the first-version data layers currently represented in the
 | Obstetric care status | Complete | `scripts/07_add_obstetric_care_status.py` | `data/processed/county_postpartum_access_analytic_base.csv` |
 | Access barrier index | Not built yet | future `scripts/08_build_postpartum_access_barrier_index.py` | future output |
 | Power BI export | Not built yet | future `scripts/09_prepare_powerbi_export.py` | future output |
+
+## Planned Index Context Notes
+
+- Population age 65+ is not part of the planned postpartum index or dashboard context.
+- Disability rate remains a planned scoring component as a county-level access-support context measure, not as a direct measure of postpartum disability or pregnancy-related disability.
+- `female_15_44_rate` is the postpartum-relevant reproductive-age population proxy.

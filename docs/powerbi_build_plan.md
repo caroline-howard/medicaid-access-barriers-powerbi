@@ -20,9 +20,23 @@
 
 ## 4. Potential Postpartum Medicaid Administrative Access Barrier Index
 
-- Present a transparent county-level screening index combining no-office counties, poverty, transportation barriers, digital access barriers, language access, disability, female population ages 15-44, rural/nonmetro status, and obstetric care context as appropriate.
-- Categorize counties into concern levels after the index methodology is finalized.
+- Present a transparent county-level screening index combining administrative access, clinical maternity access context, poverty, transportation barriers, digital access barriers, language access, disability access-support context, female population ages 15-44, and metro/nonmetro status.
+- Categorize counties into planned concern levels: lower, moderate, high, and highest concern.
 - Provide ranked county tables by potential postpartum administrative access barrier score, slicers, and explanatory tooltips for index components.
+
+Planned index component flags for the page and tooltips:
+
+- `no_medicaid_office_flag`
+- `no_hospital_obstetric_care_flag`
+- `high_poverty_flag`
+- `high_no_vehicle_flag`
+- `high_no_internet_flag`
+- `high_limited_english_flag`
+- `high_disability_flag`
+- `high_female_15_44_flag`
+- `nonmetro_flag`
+
+Do not include `high_age_65_plus_flag` as an index component or planned tooltip flag.
 
 ## 5. State Comparison
 

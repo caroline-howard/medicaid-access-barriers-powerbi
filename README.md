@@ -32,19 +32,30 @@ The dashboard distinguishes Medicaid office availability as administrative and e
 5. State Comparison
 6. Data Notes and Limitations
 
-## Planned Potential Postpartum Medicaid Administrative Access Barrier Index
+## Potential Postpartum Medicaid Administrative Access Barrier Index
 
-Planned index components include:
+Planned score components:
 
-- No Medicaid office in county
-- Poverty rate
-- No vehicle household rate
-- No internet subscription rate
-- Limited English rate
-- Disability rate
-- No hospital-based obstetric care identified
-- Female population ages 15-44
-- Rural/nonmetro status
+- No Medicaid office in county = 2 points
+- No hospital-based obstetric care = 2 points
+- Top quartile poverty rate = 1 point
+- Top quartile no-vehicle household rate = 1 point
+- Top quartile no-internet subscription rate = 1 point
+- Top quartile limited English rate = 1 point
+- Top quartile disability rate = 1 point
+- Top quartile female population ages 15-44 rate = 1 point
+- Nonmetro county = 1 point
+
+Planned score range: 0-11 points
+
+Planned concern levels:
+
+- 0-2 = Lower concern
+- 3-5 = Moderate concern
+- 6-8 = High concern
+- 9-11 = Highest concern
+
+Population age 65+ is not included in the planned score or dashboard context because this project is focused on postpartum Medicaid access barriers. Disability rate remains included as a county-level access-support context measure, not as a direct measure of postpartum disability or pregnancy-related disability.
 
 ## Current Project Status
 

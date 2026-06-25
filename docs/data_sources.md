@@ -28,9 +28,11 @@ This file documents the source inventory for the Postpartum Medicaid Access Barr
 ## C. ACS County Indicators
 
 - Source: American Community Survey 2024 5-year county-level data through the Census API.
-- Purpose: Add county-level poverty, no-vehicle household, internet subscription, limited-English, older adult, disability, and race/ethnicity context indicators to the county office access base table for postpartum access-barrier screening.
-- Indicators added: total population, poverty count/rate, no-vehicle households/rate, households without internet subscription/rate, limited-English-speaking households/rate, population age 65+/rate, disability count/rate, female population ages 15-44 count/rate, and race/ethnicity context rates.
+- Purpose: Add county-level poverty, no-vehicle household, internet subscription, limited-English, disability, female population ages 15-44, and race/ethnicity context indicators to the county office access base table for postpartum access-barrier screening.
+- Indicators added: total population, poverty count/rate, no-vehicle households/rate, households without internet subscription/rate, limited-English-speaking households/rate, disability count/rate, female population ages 15-44 count/rate, and race/ethnicity context rates.
 - Postpartum context note: Female population ages 15-44 is included as a postpartum-relevant reproductive-age population context measure.
+- Disability interpretation: Disability rate is included as a county-level access-support context measure. It does not identify postpartum disability or pregnancy-related disability.
+- Legacy/general field note: The current ACS output may still contain `population_65_plus_rate`, but population age 65+ is not used for the planned postpartum index or planned Power BI pages.
 - Limitation: ACS estimates are survey-based and county-level indicators may hide substantial within-county variation. Female population ages 15-44 is a proxy for reproductive-age population context; it does not directly identify postpartum Medicaid enrollees, pregnancy status, births, or postpartum coverage status.
 - Status: Added by `scripts/05_add_acs_access_indicators.py`
 

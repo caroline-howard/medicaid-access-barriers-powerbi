@@ -26,6 +26,12 @@ Where may in-person Medicaid enrollment support be limited relative to populatio
 
 Initial repository setup. This project currently contains the planned folder structure and documentation placeholders only. Data acquisition, cleaning, spatial joins, index development, and Power BI report construction have not started yet.
 
+## Data Source Setup
+
+The primary data source is the Shafer et al. 2024 geocoded Medicaid office locations dataset from Harvard Dataverse. The raw Excel file should be saved locally as `data/raw/medicaid_offices.xlsx`.
+
+Raw data should remain unchanged. Cleaning, county spatial joins, access-barrier measures, and export-ready tables will be handled in later scripts. This setup step does not perform analysis yet.
+
 ## Notes on Limitations
 
 - The project will identify potential geographic and administrative access barriers; it will not claim that office availability causes Medicaid enrollment outcomes.

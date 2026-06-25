@@ -1,39 +1,50 @@
 # Data Sources
 
-This file will document source locations, refresh notes, field definitions, and usage decisions as datasets are added to the project.
+This file documents the planned source inventory for the Medicaid Access Barriers Power BI project. Raw data files should remain unchanged in `data/raw/`; cleaning and derived outputs should be created by scripts in later milestones.
 
-## Medicaid Office Locations
+## A. Medicaid Office Locations
 
-- Planned source: Shafer et al. 2024 geocoded Medicaid office locations dataset from Harvard Dataverse
-- Planned use: Office point locations, address fields, latitude, longitude, state, and county assignment
+- Source: Shafer et al. 2024 / Harvard Dataverse
+- Article: "A dataset of geocoded Medicaid office locations in the United States"
+- DOI: `10.7910/DVN/AVRHMI`
+- Expected file: `data/raw/medicaid_offices.xlsx`
+- Purpose: Core office location dataset
+- Key fields: state, address, latitude, longitude
+- Expected columns: `state_fips`, `state_name`, `agency_name`, `street1`, `street2`, `city`, `state`, `zip_code`, `latitude`, `longitude`
+- Limitation: Point-in-time dataset current as of late 2023; not a live office locator
 - Status: Not added yet
 
-## County Boundaries
+## B. County Boundaries
 
-- Planned source: Census TIGER/Line or equivalent county boundary files
-- Planned use: County-level mapping and spatial joins
+- Source: U.S. Census TIGER/Line or Census cartographic boundary files
+- Purpose: Assign offices to counties and support county-level mapping
+- Expected use: Spatial join using latitude/longitude
+- Expected output: County FIPS and county name for each office
 - Status: Not added yet
 
-## ACS Indicators
+## C. ACS County Indicators
 
-- Planned source: Census or ACS county-level demographic indicators
-- Planned use: Poverty, vehicle access, broadband or internet access, disability, age, language, and related access context
+- Source: American Community Survey 5-year county-level data
+- Purpose: Poverty, vehicle access, broadband/internet access, language, disability, age, and other access-barrier indicators
+- Note: Exact variables will be finalized in a later PR
 - Status: Not added yet
 
-## CMS Medicaid Enrollment
+## D. CMS Medicaid Enrollment
 
-- Planned source: CMS Medicaid enrollment data
-- Planned use: State or county-level enrollment denominator where available
+- Source: Medicaid.gov or CMS Medicaid/CHIP enrollment data
+- Purpose: State-level enrollment context and office-per-enrollee indicators
+- Note: County-level Medicaid enrollment may not be consistently available nationally
 - Status: Not added yet
 
-## Rural-Urban Classification
+## E. Rural-Urban Classification
 
-- Planned source: Rural-urban classification data such as NCHS or RUCA
-- Planned use: Rural, urban, or frontier context for interpreting geographic access
+- Source: NCHS Urban-Rural Classification, RUCA, or USDA rural-urban data
+- Purpose: Identify rural counties and compare access barriers by geography
 - Status: Not added yet
 
-## Social Vulnerability Index
+## F. Optional Social Vulnerability Index
 
-- Planned source: Optional CDC/ATSDR Social Vulnerability Index
-- Planned use: Context layer for vulnerability, not a substitute for transparent project indicators
+- Source: CDC/ATSDR SVI
+- Purpose: Optional composite vulnerability context
+- Note: Use only if it adds value and does not duplicate ACS indicators
 - Status: Not added yet

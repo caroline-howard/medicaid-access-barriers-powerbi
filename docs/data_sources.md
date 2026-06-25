@@ -27,10 +27,11 @@ This file documents the planned source inventory for the Medicaid Access Barrier
 
 ## C. ACS County Indicators
 
-- Source: American Community Survey 5-year county-level data
-- Purpose: Poverty, vehicle access, broadband/internet access, language, disability, age, and other access-barrier indicators
-- Note: Exact variables will be finalized in a later PR
-- Status: Not added yet
+- Source: American Community Survey 5-year county-level data through the Census API; `scripts/05_add_acs_access_indicators.py` discovers the most recent available ACS 5-year vintage at run time.
+- Purpose: Add county-level poverty, no-vehicle household, internet subscription, limited-English, older adult, disability, and race/ethnicity context indicators to the county office access base table.
+- Indicators added: total population, poverty count/rate, no-vehicle households/rate, households without internet subscription/rate, limited-English-speaking households/rate, population age 65+/rate, disability count/rate, and race/ethnicity context rates.
+- Limitation: ACS estimates are survey-based and county-level indicators may hide substantial within-county variation.
+- Status: Added by `scripts/05_add_acs_access_indicators.py`
 
 ## D. CMS Medicaid Enrollment
 

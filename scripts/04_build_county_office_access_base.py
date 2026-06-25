@@ -31,6 +31,63 @@ STATE_BASE_OUTPUT = PROJECT_ROOT / "data" / "processed" / "state_office_access_b
 SUMMARY_OUTPUT = PROJECT_ROOT / "outputs" / "county_office_access_base_summary.md"
 COUNTY_ASSIGNMENT_SCRIPT = PROJECT_ROOT / "scripts" / "03_assign_offices_to_counties.py"
 
+# Analytic universe: the Medicaid office dataset covers the 50 states and
+# District of Columbia. Territories are intentionally excluded here and in the
+# ACS indicator step so all downstream county files use the same geography.
+ANALYTIC_STATE_FIPS_50_DC = {
+    "01",
+    "02",
+    "04",
+    "05",
+    "06",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51",
+    "53",
+    "54",
+    "55",
+    "56",
+}
+
 COUNTY_BASE_FIELDS = [
     "county_fips",
     "county_name",
@@ -178,6 +235,8 @@ def write_summary(
 
 - Boundary/reference source: {boundary_source_name}, {boundary_layer}
 - Boundary file URL: `{boundary_url}`
+- Analytic universe: 50 states and District of Columbia
+- Territories excluded: Yes, because the Medicaid office dataset covers the 50 states and D.C.
 - Office input file: `{OFFICE_COUNTY_INPUT.relative_to(PROJECT_ROOT)}`
 - County base output: `{COUNTY_BASE_OUTPUT.relative_to(PROJECT_ROOT)}`
 - State base output: `{STATE_BASE_OUTPUT.relative_to(PROJECT_ROOT)}`
@@ -198,7 +257,7 @@ def write_summary(
 
 ## Notes
 
-This table uses the same Census cartographic county boundary source as the county assignment step and includes counties with zero Medicaid offices. It covers the 50 states and D.C. only, matching the geography of the Medicaid office dataset. State-level office counts are based on assigned county geography, not the original source `state` field.
+This table uses the same Census cartographic county boundary source as the county assignment step and includes counties with zero Medicaid offices. It covers the 50 states and D.C. only, matching the geography of the Medicaid office dataset. Puerto Rico and other territories are excluded from the analytic universe. State-level office counts are based on assigned county geography, not the original source `state` field.
 """
     SUMMARY_OUTPUT.write_text(summary, encoding="utf-8")
 
@@ -207,13 +266,7 @@ def main() -> int:
     county_assignment = load_county_assignment_module()
     office_rows = read_csv_rows(OFFICE_COUNTY_INPUT)
 
-    state_fips_values = {
-        fips
-        for fips, abbr in county_assignment.STATE_FIPS_TO_ABBR.items()
-        if abbr in county_assignment.STATE_ABBR_TO_NAME
-        and abbr not in {"AS", "GU", "MP", "PR", "VI"}
-    }
-    counties = county_assignment.load_counties_from_boundary_zip(state_fips_values)
+    counties = county_assignment.load_counties_from_boundary_zip(ANALYTIC_STATE_FIPS_50_DC)
     county_rows = build_county_base(counties, office_rows)
     state_rows = build_state_base(county_rows)
 

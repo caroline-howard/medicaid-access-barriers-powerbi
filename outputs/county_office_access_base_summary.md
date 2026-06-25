@@ -2,6 +2,8 @@
 
 - Boundary/reference source: U.S. Census cartographic boundary county shapefile, cb_2025_us_county_500k
 - Boundary file URL: `https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_county_500k.zip`
+- Analytic universe: 50 states and District of Columbia
+- Territories excluded: Yes, because the Medicaid office dataset covers the 50 states and D.C.
 - Office input file: `data/processed/medicaid_offices_with_county.csv`
 - County base output: `data/processed/county_office_access_base.csv`
 - State base output: `data/processed/state_office_access_base.csv`
@@ -10,7 +12,7 @@
 - Counties with office: 2411
 - Counties without office: 733
 - States/DC represented: 51
-- Date/time run: 2026-06-25T14:20:09-04:00
+- Date/time run: 2026-06-25T14:39:33-04:00
 
 ## Top 10 States By Office Count
 
@@ -40,4 +42,4 @@
 
 ## Notes
 
-This table uses the same Census cartographic county boundary source as the county assignment step and includes counties with zero Medicaid offices. It covers the 50 states and D.C. only, matching the geography of the Medicaid office dataset. State-level office counts are based on assigned county geography, not the original source `state` field.
+This table uses the same Census cartographic county boundary source as the county assignment step and includes counties with zero Medicaid offices. It covers the 50 states and D.C. only, matching the geography of the Medicaid office dataset. Puerto Rico and other territories are excluded from the analytic universe. State-level office counts are based on assigned county geography, not the original source `state` field.

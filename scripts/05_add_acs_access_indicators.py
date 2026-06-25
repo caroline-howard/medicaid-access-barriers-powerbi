@@ -197,15 +197,67 @@ STATE_FIPS_TO_ABBR = {
     "78": "VI",
 }
 
+# Analytic universe: the Medicaid office dataset covers the 50 states and
+# District of Columbia. ACS rows are filtered to the counties present in
+# county_office_access_base.csv, which is built from this same state-FIPS set.
+ANALYTIC_STATE_FIPS_50_DC = {
+    "01",
+    "02",
+    "04",
+    "05",
+    "06",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51",
+    "53",
+    "54",
+    "55",
+    "56",
+}
 
-def get_api_key() -> str:
+
+def get_api_key() -> str | None:
     key = os.environ.get("CENSUS_API_KEY", "").strip()
-    if not key:
-        raise RuntimeError(
-            "CENSUS_API_KEY is not set. The Census API requires a key in this "
-            "environment; set CENSUS_API_KEY and rerun this script."
-        )
-    return key
+    return key or None
 
 
 def read_csv_rows(path: Path) -> list[dict[str, str]]:
@@ -298,6 +350,11 @@ def clean_count(value: str | None) -> int | None:
     return int(number) if number is not None else None
 
 
+def clean_rate(value: str | None) -> float | None:
+    number = to_number(value)
+    return round(number, 6) if number is not None else None
+
+
 def rate(numerator: int | float | None, denominator: int | float | None) -> float | None:
     if numerator is None or denominator in {None, 0}:
         return None
@@ -308,17 +365,93 @@ def state_abbr_from_fips(state_fips: str) -> str:
     return STATE_FIPS_TO_ABBR.get(state_fips, "")
 
 
-def build_acs_rows(year: int, api_key: str) -> list[dict[str, Any]]:
+def coerce_cached_acs_row(row: dict[str, str]) -> dict[str, Any]:
+    coerced: dict[str, Any] = {}
+    for field in ACS_OUTPUT_FIELDS:
+        value = row.get(field, "")
+        if field in {"county_fips", "county_name", "state_fips", "state_abbr"}:
+            coerced[field] = value
+        elif field == "acs_year":
+            coerced[field] = clean_count(value)
+        elif field in RATE_FIELDS:
+            coerced[field] = clean_rate(value)
+        else:
+            coerced[field] = clean_count(value)
+    return coerced
+
+
+def build_acs_rows_from_existing_output(
+    base_rows: list[dict[str, str]],
+) -> tuple[list[dict[str, Any]], int, int]:
+    if not ACS_OUTPUT.exists():
+        raise RuntimeError(
+            "CENSUS_API_KEY is not set and no existing ACS output is available to "
+            "filter. Set CENSUS_API_KEY and rerun this script."
+        )
+    cached_rows = read_csv_rows(ACS_OUTPUT)
+    cached_lookup = {row["county_fips"]: coerce_cached_acs_row(row) for row in cached_rows}
+    rows: list[dict[str, Any]] = []
+    matched_count = 0
+    acs_years = {
+        row.get("acs_year")
+        for row in cached_lookup.values()
+        if row.get("acs_year") not in {None, ""}
+    }
+
+    for base_row in sorted(base_rows, key=lambda row: row["county_fips"]):
+        county_fips = base_row["county_fips"]
+        if county_fips[:2] not in ANALYTIC_STATE_FIPS_50_DC:
+            raise RuntimeError(
+                "County office access base contains a county outside the 50 states "
+                f"and D.C. analytic universe: {county_fips}"
+            )
+        cached_row = cached_lookup.get(county_fips)
+        if cached_row:
+            row = dict(cached_row)
+            row["county_name"] = base_row.get("county_name", row.get("county_name", ""))
+            row["state_fips"] = base_row.get("state_fips", row.get("state_fips", ""))
+            row["state_abbr"] = base_row.get("state_abbr", row.get("state_abbr", ""))
+            matched_count += 1
+        else:
+            row = {field: "" for field in ACS_OUTPUT_FIELDS}
+            row.update(
+                {
+                    "county_fips": county_fips,
+                    "county_name": base_row.get("county_name", ""),
+                    "state_fips": base_row.get("state_fips", county_fips[:2]),
+                    "state_abbr": base_row.get("state_abbr", ""),
+                    "acs_year": sorted(acs_years)[-1] if acs_years else "",
+                }
+            )
+        rows.append(row)
+
+    acs_year = sorted(acs_years)[-1] if acs_years else ""
+    return rows, matched_count, int(acs_year) if acs_year != "" else 0
+
+
+def build_acs_rows(
+    year: int,
+    api_key: str,
+    base_rows: list[dict[str, str]],
+) -> tuple[list[dict[str, Any]], int]:
     detail_rows = fetch_endpoint_data(year, DETAIL_ENDPOINT, api_key)
     subject_rows = fetch_endpoint_data(year, SUBJECT_ENDPOINT, api_key)
-    all_county_fips = sorted(set(detail_rows) | set(subject_rows))
 
     rows: list[dict[str, Any]] = []
-    for county_fips in all_county_fips:
+    matched_count = 0
+    for base_row in sorted(base_rows, key=lambda row: row["county_fips"]):
+        county_fips = base_row["county_fips"]
+        if county_fips[:2] not in ANALYTIC_STATE_FIPS_50_DC:
+            raise RuntimeError(
+                "County office access base contains a county outside the 50 states "
+                f"and D.C. analytic universe: {county_fips}"
+            )
         detail = detail_rows.get(county_fips, {})
         subject = subject_rows.get(county_fips, {})
         source = {**detail, **subject}
         state_fips = county_fips[:2]
+        if detail and subject:
+            matched_count += 1
 
         raw: dict[str, int | None] = {}
         for field, (_, _, variable_id) in RAW_VARIABLES.items():
@@ -341,9 +474,9 @@ def build_acs_rows(year: int, api_key: str) -> list[dict[str, Any]]:
 
         row: dict[str, Any] = {
             "county_fips": county_fips,
-            "county_name": source.get("NAME", ""),
+            "county_name": base_row.get("county_name", source.get("NAME", "")),
             "state_fips": state_fips,
-            "state_abbr": state_abbr_from_fips(state_fips),
+            "state_abbr": base_row.get("state_abbr") or state_abbr_from_fips(state_fips),
             "acs_year": year,
             "total_population": raw["total_population"],
             "poverty_universe": raw["poverty_universe"],
@@ -399,7 +532,7 @@ def build_acs_rows(year: int, api_key: str) -> list[dict[str, Any]]:
             ),
         }
         rows.append(row)
-    return rows
+    return rows, matched_count
 
 
 def merge_base_with_acs(
@@ -465,6 +598,7 @@ def format_top(rows: list[dict[str, Any]], field: str) -> str:
 
 def write_summary(
     acs_year: int,
+    acs_data_mode: str,
     base_count: int,
     matched_count: int,
     unmatched_count: int,
@@ -487,6 +621,9 @@ def write_summary(
 
 - ACS source: U.S. Census Bureau American Community Survey 5-year API
 - ACS vintage/year: {acs_year}
+- ACS data retrieval mode: {acs_data_mode}
+- Analytic universe: 50 states and District of Columbia
+- Territories excluded: Yes, because the Medicaid office dataset covers the 50 states and D.C.
 - Input file: `{COUNTY_BASE_INPUT.relative_to(PROJECT_ROOT)}`
 - ACS indicator output: `{ACS_OUTPUT.relative_to(PROJECT_ROOT)}`
 - Merged output: `{MERGED_OUTPUT.relative_to(PROJECT_ROOT)}`
@@ -521,7 +658,7 @@ def write_summary(
 
 ## Known Limitations
 
-ACS estimates are survey-based and include uncertainty not represented in this first indicator file. County-level indicators may hide important within-county variation. This step adds contextual access-barrier indicators only; it does not calculate a barrier index or add CMS enrollment or rurality data.
+ACS estimates are survey-based and include uncertainty not represented in this first indicator file. County-level indicators may hide important within-county variation. Puerto Rico and other territories are excluded because the Medicaid office dataset covers the 50 states and D.C. This step adds contextual access-barrier indicators only; it does not calculate a barrier index or add CMS enrollment or rurality data.
 """
     SUMMARY_OUTPUT.write_text(summary, encoding="utf-8")
 
@@ -529,17 +666,25 @@ ACS estimates are survey-based and include uncertainty not represented in this f
 def main() -> int:
     base_rows = read_csv_rows(COUNTY_BASE_INPUT)
     api_key = get_api_key()
-    acs_year = discover_acs_year(api_key)
-    acs_rows = build_acs_rows(acs_year, api_key)
+    if api_key:
+        acs_year = discover_acs_year(api_key)
+        acs_rows, acs_match_count = build_acs_rows(acs_year, api_key, base_rows)
+        acs_data_mode = "Census API"
+    else:
+        acs_rows, acs_match_count, acs_year = build_acs_rows_from_existing_output(base_rows)
+        acs_data_mode = "existing local ACS output filtered to analytic universe"
 
     write_csv_rows(ACS_OUTPUT, acs_rows, ACS_OUTPUT_FIELDS)
 
-    merged_rows, matched_count, unmatched_count = merge_base_with_acs(base_rows, acs_rows)
+    merged_rows, _, _ = merge_base_with_acs(base_rows, acs_rows)
+    matched_count = acs_match_count
+    unmatched_count = len(base_rows) - matched_count
     merged_fieldnames = list(dict.fromkeys([*base_rows[0].keys(), *ACS_OUTPUT_FIELDS]))
     write_csv_rows(MERGED_OUTPUT, merged_rows, merged_fieldnames)
 
     write_summary(
         acs_year=acs_year,
+        acs_data_mode=acs_data_mode,
         base_count=len(base_rows),
         matched_count=matched_count,
         unmatched_count=unmatched_count,

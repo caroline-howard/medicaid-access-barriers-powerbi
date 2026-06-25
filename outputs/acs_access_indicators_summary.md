@@ -2,7 +2,7 @@
 
 - ACS source: U.S. Census Bureau American Community Survey 5-year API
 - ACS vintage/year: 2024
-- ACS data retrieval mode: existing local ACS output filtered to analytic universe
+- ACS data retrieval mode: Census API
 - Analytic universe: 50 states and District of Columbia
 - Territories excluded: Yes, because the Medicaid office dataset covers the 50 states and D.C.
 - Input file: `data/processed/county_office_access_base.csv`
@@ -11,7 +11,7 @@
 - Counties in office access base: 3144
 - Counties with ACS match: 3144
 - Counties missing ACS match: 0
-- Date/time run: 2026-06-25T14:40:29-04:00
+- Date/time run: 2026-06-25T18:17:27-04:00
 
 ## Indicators Added
 
@@ -21,6 +21,7 @@
 - limited_english_rate
 - population_65_plus_rate
 - disability_rate
+- female_15_44_rate
 - race/ethnicity context rates
 
 ## Missingness By Indicator
@@ -48,6 +49,8 @@
 - `disability_universe`: 0
 - `disability_count`: 0
 - `disability_rate`: 0
+- `female_15_44_count`: 0
+- `female_15_44_rate`: 0
 - `race_ethnicity_total`: 0
 - `non_hispanic_white_count`: 0
 - `non_hispanic_white_rate`: 0
@@ -68,6 +71,7 @@
 - `limited_english_rate`: min=0.0, max=0.320144
 - `population_65_plus_rate`: min=0.044672, max=0.818182
 - `disability_rate`: min=0.017956, max=0.727273
+- `female_15_44_rate`: min=0.0, max=0.396115
 - `non_hispanic_white_rate`: min=0.022856, max=1.0
 - `non_hispanic_black_rate`: min=0.0, max=0.85924
 - `hispanic_rate`: min=0.0, max=0.972013
@@ -113,6 +117,19 @@
 - Quitman County (`13239`): 0.330834
 - Jasper County (`28061`): 0.327516
 
+## Top 10 Counties By Female Population Ages 15-44 Rate
+
+- Madison County (`16065`): 0.396115
+- Radford city (`51750`): 0.360576
+- Williamsburg city (`51830`): 0.322889
+- Harrisonburg city (`51660`): 0.307246
+- Clarke County (`13059`): 0.289162
+- Clay County (`46027`): 0.288849
+- Whitman County (`53075`): 0.284258
+- Oktibbeha County (`28105`): 0.278785
+- Riley County (`20161`): 0.276026
+- Brazos County (`48041`): 0.270384
+
 ## Known Limitations
 
-ACS estimates are survey-based and include uncertainty not represented in this first indicator file. County-level indicators may hide important within-county variation. Puerto Rico and other territories are excluded because the Medicaid office dataset covers the 50 states and D.C. This step adds contextual access-barrier indicators only; it does not calculate a barrier index or add CMS enrollment or rurality data.
+ACS estimates are survey-based and include uncertainty not represented in this first indicator file. County-level indicators may hide important within-county variation. Female population ages 15-44 is a proxy for reproductive-age population context and does not directly identify postpartum Medicaid enrollees, pregnancy status, births, or postpartum coverage status. Puerto Rico and other territories are excluded because the Medicaid office dataset covers the 50 states and D.C. This step adds contextual access-barrier indicators only; it does not calculate a barrier index or add CMS enrollment or rurality data.

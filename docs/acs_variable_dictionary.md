@@ -19,6 +19,17 @@ This project uses ACS 5-year county-level variables from the most recent Census 
 | ACS 5-year detail | C16002 | limited_english_count / C16002_001E | Limited-English household rate | limited_english_rate | limited_english_count / limited_english_universe |
 | ACS 5-year detail | B01001 | B01001_020E through B01001_025E plus B01001_044E through B01001_049E | Population age 65 and older | population_65_plus | Sum of male and female age 65+ categories |
 | ACS 5-year detail | B01001 | population_65_plus / B01001_001E | Age 65+ population rate | population_65_plus_rate | population_65_plus / age_sex_total_population |
+| ACS 5-year detail | B01001 | B01001_030E | Female population age 15-17 | female_15_17 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_031E | Female population age 18-19 | female_18_19 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_032E | Female population age 20 | female_20 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_033E | Female population age 21 | female_21 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_034E | Female population age 22-24 | female_22_24 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_035E | Female population age 25-29 | female_25_29 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_036E | Female population age 30-34 | female_30_34 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_037E | Female population age 35-39 | female_35_39 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_038E | Female population age 40-44 | female_40_44 | Raw count used in female_15_44_count |
+| ACS 5-year detail | B01001 | B01001_030E + B01001_031E + B01001_032E + B01001_033E + B01001_034E + B01001_035E + B01001_036E + B01001_037E + B01001_038E | Female population ages 15-44 | female_15_44_count | Sum of female age categories from 15 through 44 |
+| ACS 5-year detail | B01001 / B01003 | female_15_44_count / B01003_001E | Female population ages 15-44 rate | female_15_44_rate | female_15_44_count / total_population |
 | ACS 5-year subject | S1810 | S1810_C01_001E | Civilian noninstitutionalized population | disability_universe | Raw count |
 | ACS 5-year subject | S1810 | S1810_C02_001E | Civilian noninstitutionalized population with a disability | disability_count | Raw count |
 | ACS 5-year subject | S1810 | S1810_C02_001E / S1810_C01_001E | Disability rate | disability_rate | disability_count / disability_universe |

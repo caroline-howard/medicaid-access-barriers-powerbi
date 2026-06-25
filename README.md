@@ -40,7 +40,7 @@ Planned index components include:
 - Limited English rate
 - Disability rate
 - No hospital-based obstetric care identified
-- Female population ages 15-44, to be added in a future ACS update
+- Female population ages 15-44
 - Rural/nonmetro status, to be added through rural-urban classification
 
 ## Current Project Status

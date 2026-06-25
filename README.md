@@ -36,9 +36,10 @@ Raw data should remain unchanged. Cleaning, county spatial joins, access-barrier
 
 1. Raw Medicaid office Excel file: `data/raw/medicaid_offices.xlsx`
 2. Clean Medicaid office CSV: `data/processed/medicaid_offices_clean.csv`
-3. Future step: assign offices to counties
-4. Future step: add ACS and access-barrier indicators
-5. Future step: build Power BI report
+3. County-assigned office file: `data/processed/medicaid_offices_with_county.csv`
+4. County and state office summaries: `data/processed/county_office_counts.csv` and `data/processed/state_office_summary.csv`
+5. Future step: add ACS/access-barrier indicators
+6. Future step: build Power BI report
 
 ## Notes on Limitations
 

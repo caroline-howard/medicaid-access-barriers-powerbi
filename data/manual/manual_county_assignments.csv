@@ -1,0 +1,2 @@
+office_id,agency_name,street1,city,state,zip_code,county_fips,county_name,county_state_abbr,manual_review_note
+office_50a81132bbcc,Middlesex County Department of Social Services,2893 General Puller Highway,Saluda,VA,23149,51119,Middlesex County,VA,Manual review assigned this valid office record to Middlesex County VA because generalized Census cartographic county boundaries did not match the point after spatial join and nearest-county fallback.

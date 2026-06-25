@@ -10,3 +10,5 @@ outputs/*
 !data/processed/.gitkeep
 !outputs/.gitkeep
 !outputs/cleaning_summary.md
+!outputs/county_assignment_summary.md
+!outputs/offices_without_county_match.csv

@@ -17,11 +17,13 @@ This file documents the planned source inventory for the Medicaid Access Barrier
 
 ## B. County Boundaries
 
-- Source: U.S. Census TIGER/Line or Census cartographic boundary files
+- Source: U.S. Census cartographic boundary county shapefile, `cb_2025_us_county_500k`
 - Purpose: Assign offices to counties and support county-level mapping
-- Expected use: Spatial join using latitude/longitude
-- Expected output: County FIPS and county name for each office
-- Status: Not added yet
+- Expected use: Spatial join using office latitude/longitude points against county polygons
+- Expected output: County FIPS, county name, and county state abbreviation for each office
+- Limitations: County-level geography supports broad access summaries but can hide within-county travel variation, especially in large rural counties and dense urban counties. Boundary vintages may differ from the office dataset date, and a small number of coastal or boundary-edge points may fail to match generalized cartographic polygons.
+- Manual review note: One office required a documented manual county assignment because generalized county boundaries did not match the point after direct spatial join and nearest-county fallback.
+- Status: Used by `scripts/03_assign_offices_to_counties.py`
 
 ## C. ACS County Indicators
 

@@ -18,6 +18,7 @@ a key in your environment.
 from __future__ import annotations
 
 import csv
+import http.client
 import json
 import os
 from collections import OrderedDict
@@ -64,6 +65,15 @@ RAW_VARIABLES: OrderedDict[str, tuple[str, str, str]] = OrderedDict(
         ),
         ("limited_english_other_language", (DETAIL_ENDPOINT, "C16002", "C16002_013E")),
         ("age_sex_total_population", (DETAIL_ENDPOINT, "B01001", "B01001_001E")),
+        ("female_15_17", (DETAIL_ENDPOINT, "B01001", "B01001_030E")),
+        ("female_18_19", (DETAIL_ENDPOINT, "B01001", "B01001_031E")),
+        ("female_20", (DETAIL_ENDPOINT, "B01001", "B01001_032E")),
+        ("female_21", (DETAIL_ENDPOINT, "B01001", "B01001_033E")),
+        ("female_22_24", (DETAIL_ENDPOINT, "B01001", "B01001_034E")),
+        ("female_25_29", (DETAIL_ENDPOINT, "B01001", "B01001_035E")),
+        ("female_30_34", (DETAIL_ENDPOINT, "B01001", "B01001_036E")),
+        ("female_35_39", (DETAIL_ENDPOINT, "B01001", "B01001_037E")),
+        ("female_40_44", (DETAIL_ENDPOINT, "B01001", "B01001_038E")),
         ("male_65_66", (DETAIL_ENDPOINT, "B01001", "B01001_020E")),
         ("male_67_69", (DETAIL_ENDPOINT, "B01001", "B01001_021E")),
         ("male_70_74", (DETAIL_ENDPOINT, "B01001", "B01001_022E")),
@@ -86,6 +96,33 @@ RAW_VARIABLES: OrderedDict[str, tuple[str, str, str]] = OrderedDict(
         ("disability_count", (SUBJECT_ENDPOINT, "S1810", "S1810_C02_001E")),
     ]
 )
+
+FEMALE_15_44_FIELDS = [
+    "female_15_17",
+    "female_18_19",
+    "female_20",
+    "female_21",
+    "female_22_24",
+    "female_25_29",
+    "female_30_34",
+    "female_35_39",
+    "female_40_44",
+]
+
+AGE_65_PLUS_FIELDS = [
+    "male_65_66",
+    "male_67_69",
+    "male_70_74",
+    "male_75_79",
+    "male_80_84",
+    "male_85_plus",
+    "female_65_66",
+    "female_67_69",
+    "female_70_74",
+    "female_75_79",
+    "female_80_84",
+    "female_85_plus",
+]
 
 ACS_OUTPUT_FIELDS = [
     "county_fips",
@@ -111,6 +148,8 @@ ACS_OUTPUT_FIELDS = [
     "disability_universe",
     "disability_count",
     "disability_rate",
+    "female_15_44_count",
+    "female_15_44_rate",
     "race_ethnicity_total",
     "non_hispanic_white_count",
     "non_hispanic_white_rate",
@@ -131,6 +170,7 @@ RATE_FIELDS = [
     "limited_english_rate",
     "population_65_plus_rate",
     "disability_rate",
+    "female_15_44_rate",
     "non_hispanic_white_rate",
     "non_hispanic_black_rate",
     "hispanic_rate",
@@ -282,7 +322,7 @@ def fetch_json(url: str) -> list[list[str]]:
     try:
         with urlopen(url, timeout=60) as response:
             text = response.read().decode("utf-8")
-    except (HTTPError, URLError, TimeoutError) as exc:
+    except (HTTPError, URLError, TimeoutError, http.client.RemoteDisconnected) as exc:
         raise RuntimeError(f"Census API request failed: {exc}") from exc
 
     if text.lstrip().startswith("<"):
@@ -301,14 +341,17 @@ def variable_ids_for_endpoint(endpoint: str) -> list[str]:
     ]
 
 
-def fetch_endpoint_data(year: int, endpoint: str, api_key: str) -> dict[str, dict[str, str]]:
+def fetch_endpoint_data(
+    year: int, endpoint: str, api_key: str | None
+) -> dict[str, dict[str, str]]:
     variable_ids = variable_ids_for_endpoint(endpoint)
     params = {
         "get": ",".join(["NAME", *variable_ids]),
         "for": "county:*",
         "in": "state:*",
-        "key": api_key,
     }
+    if api_key:
+        params["key"] = api_key
     url = f"https://api.census.gov/data/{year}/{endpoint}?{urlencode(params)}"
     data = fetch_json(url)
     headers = data[0]
@@ -322,7 +365,7 @@ def fetch_endpoint_data(year: int, endpoint: str, api_key: str) -> dict[str, dic
     return output
 
 
-def discover_acs_year(api_key: str) -> int:
+def discover_acs_year(api_key: str | None) -> int:
     for year in range(START_YEAR, EARLIEST_YEAR - 1, -1):
         try:
             fetch_endpoint_data(year, DETAIL_ENDPOINT, api_key)
@@ -380,15 +423,50 @@ def coerce_cached_acs_row(row: dict[str, str]) -> dict[str, Any]:
     return coerced
 
 
+def census_api_key_required_message(reason: str) -> str:
+    return (
+        f"{reason}\n\n"
+        "A fresh Census API pull is required for female population ages 15-44.\n"
+        "Set a Census API key and rerun:\n\n"
+        'export CENSUS_API_KEY="your_key_here"\n'
+        "python3 scripts/05_add_acs_access_indicators.py"
+    )
+
+
 def build_acs_rows_from_existing_output(
     base_rows: list[dict[str, str]],
 ) -> tuple[list[dict[str, Any]], int, int]:
     if not ACS_OUTPUT.exists():
         raise RuntimeError(
-            "CENSUS_API_KEY is not set and no existing ACS output is available to "
-            "filter. Set CENSUS_API_KEY and rerun this script."
+            census_api_key_required_message(
+                "CENSUS_API_KEY is not set and no existing ACS output is available to validate."
+            )
         )
     cached_rows = read_csv_rows(ACS_OUTPUT)
+    if not cached_rows:
+        raise RuntimeError(
+            census_api_key_required_message("Existing ACS output is empty.")
+        )
+    missing_cached_fields = sorted(set(ACS_OUTPUT_FIELDS) - set(cached_rows[0].keys()))
+    if missing_cached_fields:
+        raise RuntimeError(
+            census_api_key_required_message(
+                "Existing ACS output is missing required fields: "
+                + ", ".join(missing_cached_fields)
+            )
+        )
+    missing_required_values = [
+        field
+        for field in ["female_15_44_count", "female_15_44_rate"]
+        if any(row.get(field) in {None, ""} for row in cached_rows)
+    ]
+    if missing_required_values:
+        raise RuntimeError(
+            census_api_key_required_message(
+                "Existing ACS output does not contain populated values for: "
+                + ", ".join(missing_required_values)
+            )
+        )
     cached_lookup = {row["county_fips"]: coerce_cached_acs_row(row) for row in cached_rows}
     rows: list[dict[str, Any]] = []
     matched_count = 0
@@ -431,7 +509,7 @@ def build_acs_rows_from_existing_output(
 
 def build_acs_rows(
     year: int,
-    api_key: str,
+    api_key: str | None,
     base_rows: list[dict[str, str]],
 ) -> tuple[list[dict[str, Any]], int]:
     detail_rows = fetch_endpoint_data(year, DETAIL_ENDPOINT, api_key)
@@ -467,9 +545,10 @@ def build_acs_rows(
             ]
         )
         population_65_plus = sum(
-            value or 0
-            for field, value in raw.items()
-            if field.startswith("male_") or field.startswith("female_")
+            raw[field] or 0 for field in AGE_65_PLUS_FIELDS
+        )
+        female_15_44_count = sum(
+            raw[field] or 0 for field in FEMALE_15_44_FIELDS
         )
 
         row: dict[str, Any] = {
@@ -507,6 +586,8 @@ def build_acs_rows(
             "disability_universe": raw["disability_universe"],
             "disability_count": raw["disability_count"],
             "disability_rate": rate(raw["disability_count"], raw["disability_universe"]),
+            "female_15_44_count": female_15_44_count,
+            "female_15_44_rate": rate(female_15_44_count, raw["total_population"]),
             "race_ethnicity_total": raw["race_ethnicity_total"],
             "non_hispanic_white_count": raw["non_hispanic_white_count"],
             "non_hispanic_white_rate": rate(
@@ -615,6 +696,7 @@ def write_summary(
         "limited_english_rate",
         "population_65_plus_rate",
         "disability_rate",
+        "female_15_44_rate",
         "race/ethnicity context rates",
     ]
     summary = f"""# ACS Access Indicators Summary
@@ -656,9 +738,13 @@ def write_summary(
 
 {format_top(top_counties(acs_rows, "no_internet_rate"), "no_internet_rate")}
 
+## Top 10 Counties By Female Population Ages 15-44 Rate
+
+{format_top(top_counties(acs_rows, "female_15_44_rate"), "female_15_44_rate")}
+
 ## Known Limitations
 
-ACS estimates are survey-based and include uncertainty not represented in this first indicator file. County-level indicators may hide important within-county variation. Puerto Rico and other territories are excluded because the Medicaid office dataset covers the 50 states and D.C. This step adds contextual access-barrier indicators only; it does not calculate a barrier index or add CMS enrollment or rurality data.
+ACS estimates are survey-based and include uncertainty not represented in this first indicator file. County-level indicators may hide important within-county variation. Female population ages 15-44 is a proxy for reproductive-age population context and does not directly identify postpartum Medicaid enrollees, pregnancy status, births, or postpartum coverage status. Puerto Rico and other territories are excluded because the Medicaid office dataset covers the 50 states and D.C. This step adds contextual access-barrier indicators only; it does not calculate a barrier index or add CMS enrollment or rurality data.
 """
     SUMMARY_OUTPUT.write_text(summary, encoding="utf-8")
 
@@ -666,12 +752,21 @@ ACS estimates are survey-based and include uncertainty not represented in this f
 def main() -> int:
     base_rows = read_csv_rows(COUNTY_BASE_INPUT)
     api_key = get_api_key()
-    if api_key:
+    try:
         acs_year = discover_acs_year(api_key)
         acs_rows, acs_match_count = build_acs_rows(acs_year, api_key, base_rows)
-        acs_data_mode = "Census API"
-    else:
-        acs_rows, acs_match_count, acs_year = build_acs_rows_from_existing_output(base_rows)
+        acs_data_mode = "Census API" if api_key else "Census API without key"
+    except RuntimeError as api_error:
+        try:
+            acs_rows, acs_match_count, acs_year = build_acs_rows_from_existing_output(base_rows)
+        except RuntimeError as cache_error:
+            raise RuntimeError(
+                census_api_key_required_message(
+                    "Census API pull failed and the existing ACS cache cannot be used "
+                    f"for the new female ages 15-44 measure.\nAPI error: {api_error}\n"
+                    f"Cache error: {cache_error}"
+                )
+            ) from cache_error
         acs_data_mode = "existing local ACS output filtered to analytic universe"
 
     write_csv_rows(ACS_OUTPUT, acs_rows, ACS_OUTPUT_FIELDS)
@@ -710,6 +805,9 @@ def main() -> int:
     print("Top 10 counties by no_internet_rate:")
     for row in top_counties(acs_rows, "no_internet_rate"):
         print(f"- {row['county_name']} ({row['county_fips']}): {row['no_internet_rate']}")
+    print("Top 10 counties by female_15_44_rate:")
+    for row in top_counties(acs_rows, "female_15_44_rate"):
+        print(f"- {row['county_name']} ({row['county_fips']}): {row['female_15_44_rate']}")
     print(f"Wrote ACS indicators: {ACS_OUTPUT.relative_to(PROJECT_ROOT)}")
     print(f"Wrote merged county file: {MERGED_OUTPUT.relative_to(PROJECT_ROOT)}")
     print(f"Wrote summary: {SUMMARY_OUTPUT.relative_to(PROJECT_ROOT)}")

@@ -71,3 +71,12 @@ This file documents the source inventory for the Postpartum Medicaid Access Barr
 - Use in project: Postpartum-specific clinical maternity access context that is distinct from Medicaid administrative and enrollment support access measured by office availability.
 - Limitation: This identifies hospital-based obstetric care status, not all prenatal care, postpartum care, outpatient OB/GYN access, birth centers, doulas, midwives, community health centers, or Medicaid enrollment support.
 - Status: Added by `scripts/07_add_obstetric_care_status.py`
+
+## H. Potential Postpartum Medicaid Administrative Access Barrier Index
+
+- Source: Derived from existing sourced layers already documented above.
+- Purpose: Combine administrative access, clinical maternity access context, ACS access-support indicators, reproductive-age population context, and rurality into a transparent county-level screening score.
+- Output: `data/processed/county_postpartum_access_index.csv`
+- Note: This index does not introduce a new external dataset. It is calculated from the existing county analytic base by `scripts/08_build_postpartum_access_barrier_index.py`.
+- Limitation: The index is a screening tool, not a causal measure, and does not identify individual postpartum Medicaid enrollees.
+- Status: Built by `scripts/08_build_postpartum_access_barrier_index.py`

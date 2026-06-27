@@ -61,7 +61,7 @@ Population age 65+ is not included in the planned score or dashboard context bec
 
 The first-version data layers have been pulled and merged through the county analytic base: Medicaid office locations, county assignment, complete county office base table, ACS access-barrier indicators, female population ages 15-44, NCHS rural-urban classification, and hospital-based obstetric care status.
 
-The next analytic step is `scripts/08_build_postpartum_access_barrier_index.py`. Index development, Power BI export packaging, and report construction have not started yet.
+The county-level Potential Postpartum Medicaid Administrative Access Barrier Index is built by `scripts/08_build_postpartum_access_barrier_index.py`. Power BI export packaging and report construction have not started yet.
 
 ## Data Source Setup
 
@@ -78,7 +78,7 @@ Raw data should remain unchanged. Cleaning, county spatial joins, postpartum-rel
 5. ACS county access-barrier indicators, including female population ages 15-44: `data/processed/county_office_access_with_acs.csv`
 6. NCHS rural-urban classification: `data/processed/county_office_access_with_acs_rurality.csv`
 7. Hospital-based obstetric care status: `data/processed/county_postpartum_access_analytic_base.csv`
-8. Future step: Potential Postpartum Medicaid Administrative Access Barrier Index
+8. Potential Postpartum Medicaid Administrative Access Barrier Index: `data/processed/county_postpartum_access_index.csv`
 9. Future step: Power BI export package and report
 
 ## Notes on Limitations

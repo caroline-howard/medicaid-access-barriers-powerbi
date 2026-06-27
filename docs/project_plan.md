@@ -15,6 +15,7 @@ The dashboard is intended as a policy-facing screening tool for identifying plac
 - Female population ages 15-44
 - Rural-urban classification
 - Hospital-based obstetric care status
+- Potential Postpartum Medicaid Administrative Access Barrier Index
 
 ## Current Data Pipeline
 
@@ -25,10 +26,10 @@ The dashboard is intended as a policy-facing screening tool for identifying plac
 5. Add ACS indicators relevant to postpartum administrative access barriers, including female population ages 15-44.
 6. Add rural-urban classification to support metro/nonmetro comparisons.
 7. Add hospital-based obstetric care status as clinical maternity access context.
+8. Build the Potential Postpartum Medicaid Administrative Access Barrier Index.
 
 ## Future Milestones
 
-- Build the Potential Postpartum Medicaid Administrative Access Barrier Index.
 - Prepare Power BI export files.
 - Build the Power BI report.
 - Write portfolio summary.

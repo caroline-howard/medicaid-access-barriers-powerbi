@@ -23,5 +23,6 @@ Run the data-processing scripts in this order:
 4. `scripts/05_add_acs_access_indicators.py`
 5. `scripts/06_add_rural_urban_classification.py`
 6. `scripts/07_add_obstetric_care_status.py`
+7. `scripts/08_build_postpartum_access_barrier_index.py`
 
-The next planned analytic script is `scripts/08_build_postpartum_access_barrier_index.py`.
+The next planned step is preparing the Power BI export package.
